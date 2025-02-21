@@ -5,7 +5,7 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const app = express()
-const PORT = process.env.PORT || 5000; 
+const PORT = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 app.use(cors({
@@ -33,8 +33,10 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        const usersCollections = client.db("ToDo").collection('users');
-        const blogsCollections = client.db("ToDo").collection('blogs');
+        const ToDoCollections = client.db("ToDo").collection('todo');
+        const inProgressCollections = client.db("ToDo").collection('inProgress');
+        const DoneCollection = client.db("ToDo").collection('Done');
+
 
         // JWT SECTION
         app.post('/jwt', async (req, res) => {
@@ -75,29 +77,13 @@ async function run() {
             })
         }
 
-        // user
-        app.post('/users', async (req, res) => {
-            const user = req.body;
-            const result = await usersCollections.insertOne(user)
-            res.send(result)
-        })
-        app.get('/users', async (req, res) => {
-            const result = await usersCollections.find().toArray()
+        app.post('/addTask', async (req, res) => {
+            const tasks = req.body
+            const result = await ToDoCollections.insertOne(tasks)
             res.send(result)
         })
 
-        // blogs
-        app.post('/blogs', async (req, res) => {
-            const user = req.body;
-            const result = await blogsCollections.insertOne(user)
-            res.send(result)
-        })
-        app.get('/blogs', async (req, res) => {
-            const result = await blogsCollections.find().toArray()
-            res.send(result)
-        })
 
-        
 
     } finally {
         // Ensures that the client will close when you finish/error
