@@ -88,6 +88,15 @@ async function run() {
             res.send(result)
         })
 
+        app.put('/addTask/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: req.body
+            };
+            const result = await ToDoCollections.updateOne(query, updateDoc);
+            res.send(result)
+        })
 
 
     } finally {
