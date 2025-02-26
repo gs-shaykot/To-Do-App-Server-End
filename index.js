@@ -1,4 +1,6 @@
-// modify the user API using mongodb change stream using socket.io.
+// $ vercel --prod
+// Vercel CLI 41.1.0
+// Error: Expected double-quoted property name in JSON at position 219 (line 10 column 3)
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -35,6 +37,7 @@ async function run() {
     try {
         const ToDoCollections = client.db("ToDo").collection('todo');
         const LogsCollections = client.db("ToDo").collection('logs');
+        const UsersCollections = client.db("ToDo").collection('users');
 
         // JWT SECTION
         app.post('/jwt', async (req, res) => {
@@ -128,6 +131,18 @@ async function run() {
         // Logs Get 
         app.get('/logsEntry', async (req, res) => {
             const result = await LogsCollections.find().toArray()
+            res.send(result)
+        })
+
+        // Users ADD:
+        app.post('/users', async (req, res) => {
+            const user = req.body
+            const result = await UsersCollections.insertOne(user)
+            res.send(result)
+        })
+        // Users Get 
+        app.get('/users', async (req, res) => {
+            const result = await UsersCollections.find().toArray()
             res.send(result)
         })
 
