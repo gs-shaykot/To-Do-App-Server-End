@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://assignment-12-93b12.web.app', 'https://ass-12-delta.vercel.app'],
+    origin: ['http://localhost:5173', 'https://todo-a4bd8.web.app'],
     credentials: true
 }));
 
@@ -34,9 +34,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         const ToDoCollections = client.db("ToDo").collection('todo');
-        const inProgressCollections = client.db("ToDo").collection('inProgress');
-        const DoneCollection = client.db("ToDo").collection('Done');
-
+        const LogsCollections = client.db("ToDo").collection('logs');
 
         // JWT SECTION
         app.post('/jwt', async (req, res) => {
@@ -76,32 +74,60 @@ async function run() {
                 next()
             })
         }
-
-        app.post('/addTask', async (req, res) => {
-            const tasks = req.body
-            const result = await ToDoCollections.insertOne(tasks)
-            res.send(result)
-        })
-
+        // Fetch tasks
         app.get('/addTask', async (req, res) => {
-            const result = await ToDoCollections.find().toArray()
-            res.send(result)
-        })
+            const tasks = await ToDoCollections.find().toArray();
+            res.send(tasks);
+        });
+
+        // Add task
+        app.post('/addTask', async (req, res) => {
+            const task = req.body;
+            const result = await ToDoCollections.insertOne(task);
+            res.send(result);
+        });
+
+        // Update task status 
+        app.patch('/addTask/:id', async (req, res) => {
+            const id = req.params.id;
+            const { status, order } = req.body;
+
+            const filter = { _id: new ObjectId(id) };
+            const updateDoc = {
+                $set: { status, order }
+            };
+
+            const result = await ToDoCollections.updateOne(filter, updateDoc);
+            res.send(result);
+        });
 
         app.put('/addTask/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
+            const id = req.params.id; 
+            const filter = { _id: new ObjectId(id) };
             const updateDoc = {
                 $set: req.body
-            };
-            const result = await ToDoCollections.updateOne(query, updateDoc);
-            res.send(result)
+            }; 
+            const result = await ToDoCollections.updateOne(filter, updateDoc);
+            res.send(result);
         })
 
+        // Delete task
         app.delete('/addTask/:id', async (req, res) => {
-            const id = req.params.id
-            const query = { _id: new ObjectId(id) }
-            const result = await ToDoCollections.deleteOne(query);
+            const id = req.params.id;
+            console.log(id)
+            const result = await ToDoCollections.deleteOne({ _id: new ObjectId(id) }); 
+            res.send(result);
+        });
+
+        // Logs ADD:
+        app.post('/logsEntry', async (req, res) => {
+            const logs = req.body
+            const result = await LogsCollections.insertOne(logs)
+            res.send(result)
+        })
+        // Logs Get 
+        app.get('/logsEntry', async (req, res) => {
+            const result = await LogsCollections.find().toArray()
             res.send(result)
         })
 
@@ -111,6 +137,7 @@ async function run() {
         // await client.close();
     }
 }
+
 run().catch(console.dir);
 
 
