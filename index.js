@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://todo-a4bd8.web.app'],
+    origin: ['http://localhost:5173', 'https://todo-a4bd8.web.app', ],
     credentials: true
 }));
 
